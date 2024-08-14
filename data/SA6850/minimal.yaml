@@ -1,0 +1,24 @@
+group: G_
+path: C35658WU312988
+zipdir_name: DEA_20240809_PI_35269_OI_35658_WU_312988_robscale
+prefix: DEA
+software: DIANN
+project_spec:
+  input_URL: https://fgcz-bfabric.uzh.ch/bfabric/userlab/show-resource.html?id=2628972
+  workunit_Id: 312988
+  order_Id: 35658
+  project_name: ''
+  project_Id: 35269
+processing_options:
+  model: prolfqua
+  missing: yes
+  interaction: no
+  nr_peptides: 1.0
+  pattern_contaminants: ^CON|^zz
+  pattern_decoys: ^REV
+  remove_decoys: no
+  remove_cont: no
+  FDR_threshold: 0.1
+  diff_threshold: 1.0
+  aggregate: medpolish
+  transform: robscale
