@@ -12,12 +12,17 @@
 if (!requireNamespace("devtools", quietly = TRUE))
   install.packages("devtools")
 devtools::install_github("fgcz/prolfqua")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("rentrez")
 
-
+library(rentrez) #to fetch data from NCBI
 library(prolfqua)
 library(prolfquapp)
 library(stringr)
 library(dplyr)
+library(rvest)
+library(stringr)
 
 # globals
 fgczproject <- "p35269"
@@ -53,7 +58,13 @@ mod$anova_histogram() # where do we get small pvalues?
 annotable
 
 # what contrasts are relevant?
+##Focus first of comparison within Clone but between Environments
+##Second compare clones with ancestor 6850
 Contrast <- c("Growing_inPAvsTSB_GVancestor" = "`Genotype6850:GrowingConditionSN` - `Genotype6850:GrowingConditionTSB`",
+              "Growing_inPAvsTSB_SB0403" = "`GenotypeSB0403:GrowingConditionSN` - `GenotypeSB0403:GrowingConditionTSB`",
+              "Growing_inPAvsTSB_SB0804" = "`GenotypeSB0804:GrowingConditionSN` - `GenotypeSB0804:GrowingConditionTSB`",
+              "Growing_inPAvsTSB_SB1002" = "`GenotypeSB1002:GrowingConditionSN` - `GenotypeSB1002:GrowingConditionTSB`",
+
               "Evolution_B0403vsAncestor_allSamples" = "`GenotypeSB0403` - `Genotype6850`",
               "Evolution_B1002vsAncestor_allSamples" = "`GenotypeSB1002` - `Genotype6850`")
 
@@ -105,10 +116,69 @@ dim(contrDF)
 save(x = mergedResults_prot, file = fN)
 
 
+#####Add additional protein info to data frame
+# Function to extract AGU number from Protein_ID
+
+extract_agu <- function(protein_id) {
+  agu <- gsub(".*AGU([0-9]+)\\..*", "\\1", protein_id)
+  return(paste0("AGU", agu))
+}
+
+# Function to fetch protein information from NCBI for S. aureus 6850
+fetch_protein_info <- function(agu) {
+  tryCatch({
+    # Construct the URL for the GenBank format
+    url <- paste0("https://www.ncbi.nlm.nih.gov/sviewer/viewer.fcgi?id=", agu, "&db=protein&report=genbank&conwithfeat=on&retmode=html&withmarkup=on")
+    page <- read_html(url)
+    content <- page %>% html_text()
+
+    # Debugging: Print the first 500 characters of the page content
+    print(substr(content, 1, 500))
+
+    # Extract note, locus_tag, and gene using regular expressions
+    note <- stringr::str_extract(content, "DEFINITION  (.+?)\\n")
+    note <- ifelse(!is.na(note), stringr::str_trim(gsub("DEFINITION  ", "", note)), "Not found")
+
+    locus_tag <- stringr::str_extract(content, "/locus_tag=\"([^\"]+)\"")
+    locus_tag <- ifelse(!is.na(locus_tag), gsub("\"", "", stringr::str_extract(locus_tag, "\"([^\"]+)\"")), "Not found")
+
+    gene <- stringr::str_extract(content, "/gene=\"([^\"]+)\"")
+    gene <- ifelse(!is.na(gene), gsub("\"", "", stringr::str_extract(gene, "\"([^\"]+)\"")), "Not found")
+
+    return(list(note=note, locus_tag=locus_tag, gene=gene))
+  }, error = function(e) {
+    print(paste("Error fetching data for AGU:", agu))
+    return(list(note="Error", locus_tag="Error", gene="Error"))
+  })
+}
+
+
+
+# Apply the functions to the test dataframe
+contrDF <- contrDF %>%
+  mutate(AGU = sapply(Protein_ID, extract_agu)) %>%
+  rowwise() %>%
+  mutate(protein_info = list(fetch_protein_info(AGU))) %>%
+  mutate(
+    note = protein_info$note,
+    locus_tag = protein_info$locus_tag,
+    gene = protein_info$gene
+  ) %>%
+  select(-AGU, -protein_info)
+
+# Save the updated test dataframe to an Excel file
+library(writexl)
+write_xlsx(contrDF_label, "updated_contrDF_Saureus6850_test.xlsx")
+
+# Print the results for inspection
+print(contrDF_label)
+
+# Print a summary of the results
+print(paste("Total proteins processed:", nrow(contrDF_test)))
+print(paste("Proteins found in S. aureus 6850:", sum(contrDF_test$note != "Not found" & contrDF_test$note != "Error")))
+print(paste("Proteins not found:", sum(contrDF_test$note == "Not found")))
+print(paste("Errors encountered:", sum(contrDF_test$note == "Error")))
 #p3404_SAJE2_ResultsWithMeta <- left_join(contrDF, metaInfo_SAJE2)
 #write.table(x = p3404_SAJE2_ResultsWithMeta, file = "p3404_SAJE2_fullResults_ancestor_growingInPAvsTSB_WithMetaInfoRedundant_wImputes_2022-08-17.txt", sep = "\t", row.names = FALSE)
 #save(p3404_SAJE2_ResultsWithMeta, file = "p3404_SAJE2_results_ancestor_growingInPAvsTSB_wMetaInfo_wImputes_2022-08-17.RData")
-
-
-
 
