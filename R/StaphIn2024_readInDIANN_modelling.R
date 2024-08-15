@@ -79,18 +79,8 @@ pl_imp <- mergedResults_prot$get_Plotter()
 pl_imp$volcano_plotly()
 
 
-
-
-
-
-
-
-
-
-
-
-#p3404_JE2_ancestor_growingInPAvsTSB.pdf
-pdf("p3404_JE2_ancestor_growingInPAvsTSB_wImputes.pdf",12,8)
+(fN <- paste(fgczproject, "_", approach, "_ContrastResults", ".pdf",sep = ""))
+pdf(fN, 15,15)
 pl_imp$volcano()
 pl_imp$ma_plot()
 pl_imp$histogram_diff()
@@ -98,18 +88,21 @@ dev.off()
 
 
 # write out results
-#write.table(x = contrDF, file = "p3404_ancestor_growingInPAvsTSB_ncbiDB_SA6850.txt", sep="\t", row.names = FALSE, col.names = TRUE)
-write.table(x = mergedResults_prot$contrast_result, file = "p3404_StatisticsResults_ancestor_growingInPAvsTSB_ncbiDB_JE2_withImputes.txt", sep="\t", row.names = FALSE, col.names = TRUE)
+(fN <- paste(fgczproject, "_", approach, "_ContrastResults", ".txt",sep = ""))
+write.table(x = mergedResults_prot$contrast_result, file = fN, sep="\t", row.names = FALSE, col.names = TRUE)
 
 contrDF <- mergedResults_prot$contrast_result
+str(mergedResults_prot)
+
 # merge with meta information
-load("p3404_SAJE2_metainformation_parsed.RData")
 dim(contrDF)
+(fN <- paste(fgczproject, "_", approach, "_ContrastObject", ".RData",sep = ""))
+save(x = mergedResults_prot, file = fN)
 
-p3404_SAJE2_ResultsWithMeta <- left_join(contrDF, metaInfo_SAJE2)
-write.table(x = p3404_SAJE2_ResultsWithMeta, file = "p3404_SAJE2_fullResults_ancestor_growingInPAvsTSB_WithMetaInfoRedundant_wImputes_2022-08-17.txt", sep = "\t", row.names = FALSE)
 
-save(p3404_SAJE2_ResultsWithMeta, file = "p3404_SAJE2_results_ancestor_growingInPAvsTSB_wMetaInfo_wImputes_2022-08-17.RData")
+#p3404_SAJE2_ResultsWithMeta <- left_join(contrDF, metaInfo_SAJE2)
+#write.table(x = p3404_SAJE2_ResultsWithMeta, file = "p3404_SAJE2_fullResults_ancestor_growingInPAvsTSB_WithMetaInfoRedundant_wImputes_2022-08-17.txt", sep = "\t", row.names = FALSE)
+#save(p3404_SAJE2_ResultsWithMeta, file = "p3404_SAJE2_results_ancestor_growingInPAvsTSB_wMetaInfo_wImputes_2022-08-17.RData")
 
 
 
