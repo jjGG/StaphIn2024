@@ -9,6 +9,10 @@
 # prolfqua and proflquapp
 
 # here path to install packages
+if (!requireNamespace("devtools", quietly = TRUE))
+  install.packages("devtools")
+devtools::install_github("fgcz/prolfqua")
+
 
 library(prolfqua)
 library(prolfquapp)
