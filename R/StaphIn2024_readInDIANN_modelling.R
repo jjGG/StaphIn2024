@@ -17,6 +17,7 @@ devtools::install_github("fgcz/prolfqua")
 library(prolfqua)
 library(prolfquapp)
 library(stringr)
+library(dplyr)
 
 # globals
 fgczproject <- "p35269"
