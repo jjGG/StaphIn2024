@@ -168,7 +168,7 @@ contrDF <- contrDF %>%
 
 # Save the updated test dataframe to an Excel file
 library(writexl)
-write_xlsx(contrDF_label, "updated_contrDF_Saureus6850_test.xlsx")
+write_xlsx(contrDF, "updated_contrDF_Saureus6850.xlsx")
 
 # Print the results for inspection
 print(contrDF_label)
