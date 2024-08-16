@@ -115,6 +115,11 @@ dim(contrDF)
 (fN <- paste(fgczproject, "_", approach, "_ContrastObject", ".RData",sep = ""))
 save(x = mergedResults_prot, file = fN)
 
+# join in merged results more annotation
+load("p35269_firstAnalysis_SA6850_ContrastObject.RData")
+load("p35269_firstAnalysis_SA6850_proteinAnnotationWEggNoggNDBparsing.RData")
+AllResultsWmetaInfo <- left_join(x = mergedResults_prot$contrast_result, y = proteinAnnotationWEggNogg, join_by("Protein_ID" == "protein_Id"))
+
 
 #####Add additional protein info to data frame
 # Function to extract AGU number from Protein_ID
