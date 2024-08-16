@@ -6,7 +6,7 @@
 #
 
 # read in protein annotation RData
-#load("p35269_firstAnalysis_SA6850_ProteinAnnotation.RData")
+load("p35269_firstAnalysis_SA6850_ProteinAnnotation.RData")
 proteinAnnotation$description
 
 library(stringr)

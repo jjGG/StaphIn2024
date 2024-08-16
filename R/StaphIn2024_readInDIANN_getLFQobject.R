@@ -39,7 +39,7 @@ xd <- preprocess_DIANN(quant_data = x$data, fasta_file = x$fasta, annotation = m
 colnames(xd$protein_annotation$row_annot)
 proteinAnnotation <- xd$protein_annotation$row_annot
 nrow(proteinAnnotation)
-(fN <- paste(fgczproject, "_", approach, "_ProteinAnnotation", ".RData", sep = ""))
+(fN <- paste(fgczproject, "_", approach, "_ProteinAnnotation_fromDIANN", ".RData", sep = ""))
 save(proteinAnnotation, file = fN)
 
 # roll up to proteins -> T3PQ
