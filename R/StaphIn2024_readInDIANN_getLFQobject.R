@@ -31,9 +31,16 @@ myannotation <- file.path("../data/SA6850/dataset.csv") |>
   readr::read_csv() |> prolfquapp::read_annotation(QC = TRUE)
 
 # in this step we filter for DIANN qvalue 0.01 and also directly label decyos and contaminants!
-dir.create("C35658WU312988") # necessairy as expected by proflquapp
-#file.create("prolfqua.log") # necessairy as expected by proflquapp
+yml <- yaml::read_yaml("../data/SA6850/minimal.yaml")
+dir.create(yml$path) # necessairy as expected by proflquapp
+
 xd <- preprocess_DIANN(quant_data = x$data, fasta_file = x$fasta, annotation = myannotation)
+# xd$annotation contains useful  columns for later on joining to  resuls (e.g.  number of peptides.. geneNames and so on)
+colnames(xd$protein_annotation$row_annot)
+proteinAnnotation <- xd$protein_annotation$row_annot
+nrow(proteinAnnotation)
+(fN <- paste(fgczproject, "_", approach, "_ProteinAnnotation", ".RData", sep = ""))
+save(proteinAnnotation, file = fN)
 
 # roll up to proteins -> T3PQ
 myMethod <- "topN" # by default topN is 3
